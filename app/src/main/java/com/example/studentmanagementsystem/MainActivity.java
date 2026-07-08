@@ -1,7 +1,8 @@
 package com.example.studentmanagementsystem;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -10,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-// Firebase Database Imports
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,19 +29,23 @@ public class MainActivity extends ComponentActivity {
 
     private RecyclerView recyclerView;
     private StudentAdapter studentAdapter;
-
-    // Firebase Database Reference Variable
     private DatabaseReference dbRef;
+
+    // Default Role Fallback Security
+    private String userRole = "Admin";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Firebase initialize kiya (Main Node: "Students")
+        // Fetching Role from intentional stack channel
+        if (getIntent().hasExtra("ROLE")) {
+            userRole = getIntent().getStringExtra("ROLE");
+        }
+
         dbRef = FirebaseDatabase.getInstance().getReference("Students");
 
-        // UI Views Binding
         etId = findViewById(R.id.etId);
         etName = findViewById(R.id.etName);
         etRoll = findViewById(R.id.etRoll);
@@ -55,19 +59,19 @@ public class MainActivity extends ComponentActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // 1. CREATE: Save Data to Cloud using Sequential Roll Number as Key
+        // Enforcing system layer restrictions according to login authorization
+        applyRoleRestrictions();
+
+        // 1. CREATE: Admin Full Control
         btnSave.setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
             String roll = etRoll.getText().toString().trim();
             String course = etCourse.getText().toString().trim();
 
             if (!name.isEmpty() && !roll.isEmpty() && !course.isEmpty()) {
-
-                // Alphanumeric push key hatakar roll number (1,2,3...) ko hi direct child key banaya
                 String id = roll;
-
                 HashMap<String, String> studentMap = new HashMap<>();
-                studentMap.put("id", id); // Database entry ke andar bhi numeric ID save hogi
+                studentMap.put("id", id);
                 studentMap.put("NAME", name);
                 studentMap.put("roll", roll);
                 studentMap.put("course", course);
@@ -75,21 +79,19 @@ public class MainActivity extends ComponentActivity {
                 dbRef.child(id).setValue(studentMap)
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(MainActivity.this, "Student added with ID: " + id, Toast.LENGTH_SHORT).show();
-                            // Fields clean up after successful insertion
                             etName.setText("");
                             etRoll.setText("");
                             etCourse.setText("");
-                        })
-                        .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        });
             } else {
                 Toast.makeText(MainActivity.this, "Please fill all fields!", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // 2. READ: Fetch Data from Cloud Firebase
+        // 2. READ: Public View Access for all roles
         btnView.setOnClickListener(v -> viewStudentsFromFirebase());
 
-        // 3. UPDATE: Modify Data easily using Sequential Numeric Student ID (1,2,3...)
+        // 3. UPDATE: Admin & Faculty Access
         btnUpdate.setOnClickListener(v -> {
             String id = etId.getText().toString().trim();
             String name = etName.getText().toString().trim();
@@ -102,7 +104,6 @@ public class MainActivity extends ComponentActivity {
                 updateMap.put("roll", roll);
                 updateMap.put("course", course);
 
-                // Direct sequential child target (`Students/1`, `Students/2`)
                 dbRef.child(id).updateChildren(updateMap)
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(MainActivity.this, "ID " + id + " Updated successfully!", Toast.LENGTH_SHORT).show();
@@ -110,39 +111,55 @@ public class MainActivity extends ComponentActivity {
                             etName.setText("");
                             etRoll.setText("");
                             etCourse.setText("");
-                        })
-                        .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Update Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        });
             } else {
                 Toast.makeText(MainActivity.this, "Fill ID and all fields to update!", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // 4. DELETE: Remove Record directly using Sequential Student ID (1,2,3...)
+        // 4. DELETE: Admin Control Only
         btnDelete.setOnClickListener(v -> {
             String id = etId.getText().toString().trim();
             if (!id.isEmpty()) {
-                // Directly targets the specific numeric child path and wipes it
                 dbRef.child(id).removeValue()
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(MainActivity.this, "Record with ID " + id + " deleted!", Toast.LENGTH_SHORT).show();
                             etId.setText("");
-                        })
-                        .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Deletion Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        });
             } else {
                 Toast.makeText(MainActivity.this, "ID is required for deletion!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Realtime Database Reader Method (Formats to JSON for StudentAdapter)
+    private void applyRoleRestrictions() {
+        if (userRole.equals("Faculty")) {
+            btnSave.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
+            Toast.makeText(this, "Welcome Faculty! (Edit Access Only)", Toast.LENGTH_LONG).show();
+
+        } else if (userRole.equals("Student")) {
+            btnSave.setVisibility(View.GONE);
+            btnUpdate.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
+
+            etId.setEnabled(false);
+            etName.setEnabled(false);
+            etRoll.setEnabled(false);
+            etCourse.setEnabled(false);
+
+            Toast.makeText(this, "Welcome Student! (View Only Access)", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Welcome Admin! (Full Privilege)", Toast.LENGTH_LONG).show();
+        }
+    }
+
     private void viewStudentsFromFirebase() {
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 JSONArray jsonArray = new JSONArray();
-
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    // Fetching hashmap mapping from node
                     HashMap<String, String> map = (HashMap<String, String>) dataSnapshot.getValue();
                     if (map != null) {
                         JSONObject jsonObject = new JSONObject();
@@ -157,15 +174,13 @@ public class MainActivity extends ComponentActivity {
                         }
                     }
                 }
-
-                // Binding clean array directly to your premium layout adapter
                 studentAdapter = new StudentAdapter(jsonArray);
                 recyclerView.setAdapter(studentAdapter);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(MainActivity.this, "Database Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
