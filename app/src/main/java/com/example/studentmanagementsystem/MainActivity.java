@@ -25,13 +25,11 @@ import java.util.HashMap;
 public class MainActivity extends ComponentActivity {
 
     private EditText etName, etRoll, etCourse, etId;
-    private Button btnSave, btnView, btnUpdate, btnDelete;
+    private Button btnSave, btnView, btnUpdate, btnDelete, btnLogout; // Added btnLogout
 
     private RecyclerView recyclerView;
     private StudentAdapter studentAdapter;
     private DatabaseReference dbRef;
-
-    // Default Role Fallback Security
     private String userRole = "Admin";
 
     @Override
@@ -39,7 +37,6 @@ public class MainActivity extends ComponentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Fetching Role from intentional stack channel
         if (getIntent().hasExtra("ROLE")) {
             userRole = getIntent().getStringExtra("ROLE");
         }
@@ -55,14 +52,26 @@ public class MainActivity extends ComponentActivity {
         btnView = findViewById(R.id.btnView);
         btnUpdate = findViewById(R.id.btnUpdate);
         btnDelete = findViewById(R.id.btnDelete);
+        btnLogout = findViewById(R.id.btnLogout); // Binded Logout Button
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Enforcing system layer restrictions according to login authorization
         applyRoleRestrictions();
 
-        // 1. CREATE: Admin Full Control
+        // 🔥 LOGOUT BUTTON LOGIC
+        if (btnLogout != null) {
+            btnLogout.setOnClickListener(v -> {
+                Toast.makeText(MainActivity.this, "Logged out successfully!", Toast.LENGTH_SHORT).show();
+                // User ko wapas clear stack ke sath Login screen par bhej dega
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            });
+        }
+
+        // 1. CREATE
         btnSave.setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
             String roll = etRoll.getText().toString().trim();
@@ -88,10 +97,10 @@ public class MainActivity extends ComponentActivity {
             }
         });
 
-        // 2. READ: Public View Access for all roles
+        // 2. READ
         btnView.setOnClickListener(v -> viewStudentsFromFirebase());
 
-        // 3. UPDATE: Admin & Faculty Access
+        // 3. UPDATE
         btnUpdate.setOnClickListener(v -> {
             String id = etId.getText().toString().trim();
             String name = etName.getText().toString().trim();
@@ -117,7 +126,7 @@ public class MainActivity extends ComponentActivity {
             }
         });
 
-        // 4. DELETE: Admin Control Only
+        // 4. DELETE
         btnDelete.setOnClickListener(v -> {
             String id = etId.getText().toString().trim();
             if (!id.isEmpty()) {

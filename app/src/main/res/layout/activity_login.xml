@@ -23,7 +23,6 @@
         android:hint="Username / ID"
         android:inputType="text"
         android:paddingLeft="16dp"
-        android:background="@android:drawable/editbox_background_normal"
         android:layout_marginBottom="16dp"/>
 
     <EditText
@@ -33,7 +32,6 @@
         android:hint="Password"
         android:inputType="textPassword"
         android:paddingLeft="16dp"
-        android:background="@android:drawable/editbox_background_normal"
         android:layout_marginBottom="24dp"/>
 
     <TextView
@@ -81,6 +79,16 @@
         android:text="LOGIN"
         android:textSize="16sp"
         android:backgroundTint="#2563EB"
-        android:textColor="#FFFFFF"/>
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tvGoToRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Don't have an account? Register here"
+        android:textColor="#10B981"
+        android:textStyle="bold"
+        android:padding="8dp"/>
 
 </LinearLayout>
