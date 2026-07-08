@@ -22,7 +22,7 @@ public class LoginActivity extends ComponentActivity {
     private EditText etUsername, etPassword;
     private RadioGroup rgRole;
     private Button btnLogin;
-    private TextView tvGoToRegister; // Added link reference
+    private TextView tvGoToRegister;
     private DatabaseReference dbRef;
 
     @Override
@@ -56,7 +56,6 @@ public class LoginActivity extends ComponentActivity {
             }
         });
 
-        // Click listener to redirect back to registration portal
         tvGoToRegister.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             finish();
@@ -77,6 +76,7 @@ public class LoginActivity extends ComponentActivity {
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra("ROLE", role);
+                        intent.putExtra("USERNAME", username); // 🔥 HACK: Username pass kiya data identification ke liye
                         startActivity(intent);
                         finish();
                     } else {
