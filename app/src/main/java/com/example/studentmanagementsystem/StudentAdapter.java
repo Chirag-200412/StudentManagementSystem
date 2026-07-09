@@ -27,6 +27,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Linear stacking matrix programmatic cards layout
         LinearLayout cardContainer = new LinearLayout(parent.getContext());
         cardContainer.setOrientation(LinearLayout.VERTICAL);
 
@@ -58,6 +59,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
         tvDetails.setPadding(0, 10, 0, 0);
         cardContainer.addView(tvDetails);
 
+        // Horizontal Row embedded below description layout elements
         LinearLayout layoutActions = new LinearLayout(parent.getContext());
         layoutActions.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
@@ -98,11 +100,23 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
         try {
             JSONObject student = studentList.getJSONObject(position);
 
-            // 🔥 idValue me wahi exact key aayegi jo humne bhejdi hai
             final String idValue = student.optString("id").trim();
             final String nameValue = student.optString("NAME").trim();
             final String rollValue = student.optString("roll").trim();
             String courseValue = student.optString("course").trim();
+
+            // 🔥 DOUBLE PROTECT FIX: Agar array elements khali hain toh instantly element hide aur structural dimensions zero
+            if (nameValue.isEmpty() && rollValue.isEmpty()) {
+                holder.itemView.setVisibility(View.GONE);
+                holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+                return;
+            } else {
+                holder.itemView.setVisibility(View.VISIBLE);
+                holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
+            }
 
             holder.textTitle.setText(nameValue);
 
@@ -110,28 +124,36 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
             sbDesc.append(rollValue.isEmpty() ? "ID: " + idValue : rollValue).append("\n");
             sbDesc.append("Statement: ").append(courseValue);
 
+            if (student.has("attendance")) {
+                sbDesc.append("\nAttendance: ").append(student.optString("attendance"));
+            }
+            if (student.has("result")) {
+                sbDesc.append("\nResult/CGPA: ").append(student.optString("result"));
+            }
+
             holder.textDetails.setText(sbDesc.toString());
 
+            // Check dynamic conditions for showing approval mini row buttons
             if (nameValue.contains("Paid Due") || courseValue.contains("clearance") || nameValue.contains("Fee Clearance")) {
                 holder.layoutActions.setVisibility(View.VISIBLE);
 
-                // ✔️ APPROVE CLICK HANDLER
+                // ✔️ APPROVE CLICK ACTION
                 holder.btnTick.setOnClickListener(v -> {
                     if (idValue.isEmpty()) {
-                        Toast.makeText(v.getContext(), "Error: Key missing!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(v.getContext(), "Error: Invalid transaction link ID!", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
 
-                    // Direct targeting using the perfect string key
+                    // Directly wipe balance under principal student node trees
                     rootRef.child("Students").child(idValue).child("due_fee").setValue("0");
                     rootRef.child("PaymentApprovals").child(idValue).removeValue();
 
                     Toast.makeText(v.getContext(), "Cleared & Approved Successfully!", Toast.LENGTH_LONG).show();
                 });
 
-                // ✖️ DECLINE CLICK HANDLER
+                // ✖️ DECLINE CLICK ACTION
                 holder.btnCut.setOnClickListener(v -> {
                     if (!idValue.isEmpty()) {
                         FirebaseDatabase.getInstance().getReference("PaymentApprovals").child(idValue).removeValue();

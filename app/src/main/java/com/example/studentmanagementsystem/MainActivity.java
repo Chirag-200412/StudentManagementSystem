@@ -299,7 +299,7 @@ public class MainActivity extends ComponentActivity {
         builder.create().show();
     }
 
-    // 🔥 ABSOLUTE FIXED PATHWAY POPUP FOR PUSH DATA MAPPING
+    // 📱 SECURE FIXED ROUTING POPUP FOR TRANSACTION SYNC
     private void showPaytmQrPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("📱 Paytm UPI Payment Gateway");
@@ -329,7 +329,7 @@ public class MainActivity extends ComponentActivity {
         builder.setPositiveButton("I HAVE PAID 👍", (dialog, which) -> {
             HashMap<String, String> approvalMap = new HashMap<>();
 
-            // Fixed dynamic key verification
+            // Fixed direct key matching mapping packet
             String secureApprovalKey = (rId != null && !rId.trim().isEmpty()) ? rId.trim() : rRoll.trim();
 
             approvalMap.put("id", secureApprovalKey);
@@ -347,7 +347,6 @@ public class MainActivity extends ComponentActivity {
         builder.create().show();
     }
 
-    // 🔥 LIVE FETCH DATA CONTEXT
     private void viewFeeApprovalsOnSystem() {
         dbApprovals.addValueEventListener(new ValueEventListener() {
             @Override
@@ -359,7 +358,6 @@ public class MainActivity extends ComponentActivity {
                     return;
                 }
                 for (DataSnapshot ds : snapshot.getChildren()) {
-                    // Force parsing key parameter securely
                     String id = ds.getKey();
                     String name = ds.child("NAME").getValue() != null ? ds.child("NAME").getValue().toString() : "Paid Due Request";
                     String roll = ds.child("roll").getValue() != null ? ds.child("roll").getValue().toString() : "";
@@ -415,6 +413,7 @@ public class MainActivity extends ComponentActivity {
         });
     }
 
+    // 📊 VIEW ALL RECORDS WITH CRITICAL BLANK FILTERS
     private void viewStudentsFromFirebase() {
         dbStudents.addValueEventListener(new ValueEventListener() {
             @Override
@@ -429,6 +428,11 @@ public class MainActivity extends ComponentActivity {
                     String course = dataSnapshot.child("course").getValue() != null ? dataSnapshot.child("course").getValue().toString() : "";
                     String attendance = dataSnapshot.child("attendance").getValue() != null ? dataSnapshot.child("attendance").getValue().toString() : "Not Marked";
                     String result = dataSnapshot.child("result").getValue() != null ? dataSnapshot.child("result").getValue().toString() : "Awaiting";
+
+                    // 🔥 VALIDATION FIX: Agar name aur roll khali dummy nodes hain toh unhe ignore karo
+                    if (name.trim().isEmpty() && roll.trim().isEmpty()) {
+                        continue;
+                    }
 
                     JSONObject jsonObject = new JSONObject();
                     try {
