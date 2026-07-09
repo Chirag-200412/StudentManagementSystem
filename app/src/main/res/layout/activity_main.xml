@@ -1,186 +1,315 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
     android:background="#F5F7FA">
 
-    <TextView
-        android:id="@+id/tvDashboardTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ERP Dashboard"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="#1E293B"
-        android:layout_gravity="center"
-        android:layout_marginBottom="16dp"/>
-
     <LinearLayout
-        android:id="@+id/layoutAdminFaculty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="visible">
-
-        <EditText
-            android:id="@+id/etId"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Enter Student ID (For Update/Delete)"
-            android:inputType="number"
-            android:paddingLeft="12dp"
-            android:background="@android:drawable/editbox_background_normal"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
-            android:id="@+id/etName"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Student Name"
-            android:inputType="textPersonName"
-            android:paddingLeft="12dp"
-            android:background="@android:drawable/editbox_background_normal"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
-            android:id="@+id/etRoll"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Roll Number (Acts as Sequence ID)"
-            android:inputType="number"
-            android:paddingLeft="12dp"
-            android:background="@android:drawable/editbox_background_normal"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
-            android:id="@+id/etCourse"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Course Name"
-            android:inputType="text"
-            android:paddingLeft="12dp"
-            android:background="@android:drawable/editbox_background_normal"
-            android:layout_marginBottom="16dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            android:layout_marginBottom="8dp">
-            <Button
-                android:id="@+id/btnSave"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:text="SAVE DATA"
-                android:backgroundTint="#10B981"
-                android:layout_marginRight="4dp"/>
-            <Button
-                android:id="@+id/btnView"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:text="VIEW RECORDS"
-                android:backgroundTint="#3B82F6"
-                android:layout_marginLeft="4dp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            android:layout_marginBottom="16dp">
-            <Button
-                android:id="@+id/btnUpdate"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:text="UPDATE"
-                android:backgroundTint="#F59E0B"
-                android:layout_marginRight="4dp"/>
-            <Button
-                android:id="@+id/btnDelete"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:text="DELETE"
-                android:backgroundTint="#EF4444"
-                android:layout_marginLeft="4dp"/>
-        </LinearLayout>
+        android:padding="16dp">
 
         <TextView
+            android:id="@+id/tvDashboardTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Live Database Entries:"
+            android:text="ERP Dashboard"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="#475569"
+            android:textColor="#1E293B"
+            android:layout_gravity="center"
             android:layout_marginBottom="8dp"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <!-- ANNOUNCEMENT TICKER SECTION -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:scrollbars="vertical"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#FEF3C7"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📢 Notice: "
+                android:textStyle="bold"
+                android:textColor="#D97706"/>
+            <TextView
+                android:id="@+id/tvLiveAnnouncement"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No new announcements from management."
+                android:textColor="#92400E"/>
+        </LinearLayout>
+
+        <!-- ==================================================== -->
+        <!-- CONTAINER 1: ADMIN & FACULTY PANEL (INPUTS PANEL)    -->
+        <!-- ==================================================== -->
+        <LinearLayout
+            android:id="@+id/layoutAdminFaculty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <EditText
+                android:id="@+id/etAnnouncementInput"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="Broadcast New Announcement..."
+                android:paddingLeft="12dp"
+                android:background="@android:drawable/editbox_background_normal"
+                android:layout_marginBottom="8dp"/>
+            <Button
+                android:id="@+id/btnPostAnnouncement"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="POST ANNOUNCEMENT"
+                android:backgroundTint="#6366F1"
+                android:layout_marginBottom="16dp"/>
+
+            <EditText
+                android:id="@+id/etId"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="Enter Student ID (For Update/Delete/Grades)"
+                android:inputType="number"
+                android:paddingLeft="12dp"
+                android:background="@android:drawable/editbox_background_normal"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/etName"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="Student Name"
+                android:paddingLeft="12dp"
+                android:background="@android:drawable/editbox_background_normal"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/etRoll"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="Roll Number"
+                android:inputType="number"
+                android:paddingLeft="12dp"
+                android:background="@android:drawable/editbox_background_normal"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/etCourse"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="Course Name"
+                android:paddingLeft="12dp"
+                android:background="@android:drawable/editbox_background_normal"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="16dp">
+                <EditText
+                    android:id="@+id/etAttendanceInput"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:hint="Attendance % (e.g. 85%)"
+                    android:paddingLeft="12dp"
+                    android:background="@android:drawable/editbox_background_normal"
+                    android:layout_marginRight="4dp"/>
+                <EditText
+                    android:id="@+id/etResultInput"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:hint="Result / CGPA (e.g. 9.1)"
+                    android:paddingLeft="12dp"
+                    android:background="@android:drawable/editbox_background_normal"
+                    android:layout_marginLeft="4dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="8dp">
+                <Button
+                    android:id="@+id/btnSave"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="SAVE DATA"
+                    android:backgroundTint="#10B981"
+                    android:layout_marginRight="4dp"/>
+                <Button
+                    android:id="@+id/btnView"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="VIEW RECORDS"
+                    android:backgroundTint="#3B82F6"
+                    android:layout_marginLeft="4dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="8dp">
+                <Button
+                    android:id="@+id/btnUpdate"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="UPDATE"
+                    android:backgroundTint="#F59E0B"
+                    android:layout_marginRight="4dp"/>
+                <Button
+                    android:id="@+id/btnDelete"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="DELETE"
+                    android:backgroundTint="#EF4444"
+                    android:layout_marginLeft="4dp"/>
+            </LinearLayout>
+
+            <!-- 🔥 RED DEPLOYED BUTTON FOR LIVE COMPLAINTS FEED -->
+            <Button
+                android:id="@+id/btnViewComplaints"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="VIEW STUDENT COMPLAINTS 🚨"
+                android:backgroundTint="#EF4444"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Live Monitor Feed Terminal:"
+                android:textStyle="bold"
+                android:textColor="#475569"
+                android:layout_marginBottom="8dp"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:scrollbars="vertical"
+                android:layout_marginBottom="16dp"/>
+        </LinearLayout>
+
+        <!-- ==================================================== -->
+        <!-- CONTAINER 2: STUDENT PROFILE VIEW BLOCK              -->
+        <!-- ==================================================== -->
+        <LinearLayout
+            android:id="@+id/layoutStudentCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@android:drawable/dialog_holo_light_frame"
+            android:visibility="gone"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:id="@+id/tvProfileName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Full Name: Fetching..."
+                android:textSize="18sp"
+                android:textColor="#1E293B"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvProfileRoll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="University Roll No: Fetching..."
+                android:textSize="15sp"
+                android:textColor="#475569"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvProfileCourse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enrolled Course: Fetching..."
+                android:textSize="15sp"
+                android:textColor="#475569"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/tvProfileAttendance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📊 Attendance Status: N/A"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#059669"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvProfileResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🎓 Current Semester Result: N/A"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#2563EB"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tvProfileId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Student System ID: Fetching..."
+                android:textSize="13sp"
+                android:textColor="#94A3B8"
+                android:layout_marginBottom="16dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" android:layout_marginBottom="12dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Report a Grievance / Complaint Box:"
+                android:textStyle="bold"
+                android:textColor="#475569"
+                android:layout_marginBottom="6dp"/>
+            <EditText
+                android:id="@+id/etComplaintBody"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:hint="Type your issue here (Hostel, Fee, Exam)..."
+                android:gravity="top|left"
+                android:padding="8dp"
+                android:background="@android:drawable/editbox_background_normal"
+                android:layout_marginBottom="8dp"/>
+            <Button
+                android:id="@+id/btnSubmitComplaint"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:text="SUBMIT COMPLAINT"
+                android:backgroundTint="#EF4444"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="LOGOUT FROM ACCOUNT"
+            android:backgroundTint="#475569"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"/>
+
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutStudentCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:background="@android:drawable/dialog_holo_light_frame"
-        android:visibility="gone"
-        android:layout_marginBottom="24dp">
-
-        <TextView
-            android:id="@+id/tvProfileName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Full Name: Fetching..."
-            android:textSize="18sp"
-            android:textColor="#1E293B"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:id="@+id/tvProfileRoll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="University Roll No: Fetching..."
-            android:textSize="16sp"
-            android:textColor="#475569"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:id="@+id/tvProfileCourse"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enrolled Course: Fetching..."
-            android:textSize="16sp"
-            android:textColor="#475569"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:id="@+id/tvProfileId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Student System ID: Fetching..."
-            android:textSize="14sp"
-            android:textColor="#94A3B8"/>
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="LOGOUT FROM ACCOUNT"
-        android:backgroundTint="#475569"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"/>
-
-</LinearLayout>
+</ScrollView>

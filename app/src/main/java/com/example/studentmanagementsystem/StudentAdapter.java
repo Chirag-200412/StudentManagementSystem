@@ -66,7 +66,22 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
         tvCourse.setPadding(0, 6, 0, 0);
         layout.addView(tvCourse);
 
-        return new ViewHolder(layout, tvId, tvName, tvRoll, tvCourse);
+        // 🔥 EXTRA NEW CUSTOM PARAMETERS FOR COMPLAINTS, ATTENDANCE & RESULTS
+        TextView tvAttendance = new TextView(parent.getContext());
+        tvAttendance.setLayoutParams(textParams);
+        tvAttendance.setTextSize(15);
+        tvAttendance.setTextColor(android.graphics.Color.parseColor("#059669")); // Green color for metrics
+        tvAttendance.setPadding(0, 6, 0, 0);
+        layout.addView(tvAttendance);
+
+        TextView tvResult = new TextView(parent.getContext());
+        tvResult.setLayoutParams(textParams);
+        tvResult.setTextSize(15);
+        tvResult.setTextColor(android.graphics.Color.parseColor("#2563EB")); // Blue color for scores
+        tvResult.setPadding(0, 6, 0, 0);
+        layout.addView(tvResult);
+
+        return new ViewHolder(layout, tvId, tvName, tvRoll, tvCourse, tvAttendance, tvResult);
     }
 
     @Override
@@ -74,11 +89,26 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
         try {
             JSONObject student = studentList.getJSONObject(position);
 
-            // यहाँ हमने "name" को बदलकर "NAME" कर दिया है जो आपके सर्वर से मैच करता है
-            holder.tvDisplayId.setText("ID: " + student.getString("id"));
-            holder.tvDisplayName.setText("Name: " + student.getString("NAME"));
-            holder.tvDisplayRoll.setText("Roll No: " + student.getString("roll"));
-            holder.tvDisplayCourse.setText("Course: " + student.getString("course"));
+            // Base core parameters extraction
+            holder.tvDisplayId.setText("ID / Target Key: " + student.getString("id"));
+            holder.tvDisplayName.setText("Title/Name: " + student.getString("NAME"));
+            holder.tvDisplayRoll.setText("Roll / Sub-Index: " + student.getString("roll"));
+            holder.tvDisplayCourse.setText("Course / Message: " + student.getString("course"));
+
+            // 🔥 SAFELY INJECT NEW COLUMNS (Agar data Students node ka hai toh metrics dikhenge, aur Complaints ka hai toh default safely hide/handle honge)
+            if (student.has("attendance")) {
+                holder.tvDisplayAttendance.setVisibility(View.VISIBLE);
+                holder.tvDisplayAttendance.setText("Attendance: " + student.getString("attendance"));
+            } else {
+                holder.tvDisplayAttendance.setVisibility(View.GONE);
+            }
+
+            if (student.has("result")) {
+                holder.tvDisplayResult.setVisibility(View.VISIBLE);
+                holder.tvDisplayResult.setText("Result: " + student.getString("result"));
+            } else {
+                holder.tvDisplayResult.setVisibility(View.GONE);
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -91,14 +121,16 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDisplayId, tvDisplayName, tvDisplayRoll, tvDisplayCourse;
+        TextView tvDisplayId, tvDisplayName, tvDisplayRoll, tvDisplayCourse, tvDisplayAttendance, tvDisplayResult;
 
-        public ViewHolder(@NonNull View itemView, TextView id, TextView name, TextView roll, TextView course) {
+        public ViewHolder(@NonNull View itemView, TextView id, TextView name, TextView roll, TextView course, TextView attendance, TextView result) {
             super(itemView);
             this.tvDisplayId = id;
             this.tvDisplayName = name;
             this.tvDisplayRoll = roll;
             this.tvDisplayCourse = course;
+            this.tvDisplayAttendance = attendance; // Joda naya structural element
+            this.tvDisplayResult = result;         // Joda naya grade mapping element
         }
     }
 }
