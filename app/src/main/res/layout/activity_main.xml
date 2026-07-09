@@ -44,7 +44,7 @@
         </LinearLayout>
 
         <!-- ==================================================== -->
-        <!-- CONTAINER 1: ADMIN & FACULTY PANEL (INPUTS PANEL)    -->
+        <!-- CONTAINER 1: ADMIN & FACULTY PANEL                   -->
         <!-- ==================================================== -->
         <LinearLayout
             android:id="@+id/layoutAdminFaculty"
@@ -73,7 +73,7 @@
                 android:id="@+id/etId"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
-                android:hint="Enter Student ID (For Update/Delete/Grades)"
+                android:hint="Enter Student ID (For Update/Delete/Grades/Fee)"
                 android:inputType="number"
                 android:paddingLeft="12dp"
                 android:background="@android:drawable/editbox_background_normal"
@@ -112,13 +112,13 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="2"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="8dp">
                 <EditText
                     android:id="@+id/etAttendanceInput"
                     android:layout_width="0dp"
                     android:layout_height="45dp"
                     android:layout_weight="1"
-                    android:hint="Attendance % (e.g. 85%)"
+                    android:hint="Attendance %"
                     android:paddingLeft="12dp"
                     android:background="@android:drawable/editbox_background_normal"
                     android:layout_marginRight="4dp"/>
@@ -127,7 +127,35 @@
                     android:layout_width="0dp"
                     android:layout_height="45dp"
                     android:layout_weight="1"
-                    android:hint="Result / CGPA (e.g. 9.1)"
+                    android:hint="Result / CGPA"
+                    android:paddingLeft="12dp"
+                    android:background="@android:drawable/editbox_background_normal"
+                    android:layout_marginLeft="4dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="16dp">
+                <EditText
+                    android:id="@+id/etTotalFeeInput"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:hint="Total Course Fee (₹)"
+                    android:inputType="number"
+                    android:paddingLeft="12dp"
+                    android:background="@android:drawable/editbox_background_normal"
+                    android:layout_marginRight="4dp"/>
+                <EditText
+                    android:id="@+id/etDueFeeInput"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:hint="Pending Due Fee (₹)"
+                    android:inputType="number"
                     android:paddingLeft="12dp"
                     android:background="@android:drawable/editbox_background_normal"
                     android:layout_marginLeft="4dp"/>
@@ -181,13 +209,23 @@
                     android:layout_marginLeft="4dp"/>
             </LinearLayout>
 
-            <!-- 🔥 RED DEPLOYED BUTTON FOR LIVE COMPLAINTS FEED -->
             <Button
                 android:id="@+id/btnViewComplaints"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:text="VIEW STUDENT COMPLAINTS 🚨"
                 android:backgroundTint="#EF4444"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- 🔥 NEW FEE APPROVAL VIEW LOG LISTENER -->
+            <Button
+                android:id="@+id/btnViewFeeApprovals"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="FEE APPROVAL REQUESTS 💰"
+                android:backgroundTint="#2563EB"
                 android:textColor="#FFFFFF"
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp"/>
@@ -202,7 +240,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="220dp"
                 android:scrollbars="vertical"
                 android:layout_marginBottom="16dp"/>
         </LinearLayout>
@@ -267,6 +305,56 @@
                 android:textStyle="bold"
                 android:textColor="#2563EB"
                 android:layout_marginBottom="16dp"/>
+
+            <!-- STUDENT FEE STRUCTURE DISP CARD -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#EFF6FF"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="💳 Account &amp; Fee Statements"
+                    android:textStyle="bold"
+                    android:textColor="#1E40AF"
+                    android:layout_marginBottom="6dp"/>
+                <TextView
+                    android:id="@+id/tvProfileTotalFee"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Total Course Fee: ₹0"
+                    android:textColor="#1E293B"
+                    android:layout_marginBottom="4dp"/>
+                <TextView
+                    android:id="@+id/tvProfileDueFee"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Outstanding Due: ₹0"
+                    android:textColor="#DC2626"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+
+                <Button
+                    android:id="@+id/btnGenerateReceipt"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:text="GENERATE FEE RECEIPT 🧾"
+                    android:textSize="12sp"
+                    android:backgroundTint="#2563EB"
+                    android:layout_marginBottom="8dp"/>
+
+                <Button
+                    android:id="@+id/btnPayOnline"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:text="PAY VIA PAYTM UPI 📱"
+                    android:textSize="12sp"
+                    android:backgroundTint="#10B981"
+                    android:textStyle="bold"/>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvProfileId"
