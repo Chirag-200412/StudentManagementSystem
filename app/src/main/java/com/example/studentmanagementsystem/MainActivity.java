@@ -28,16 +28,16 @@ import java.util.HashMap;
 
 public class MainActivity extends ComponentActivity {
 
-    private EditText etName, etRoll, etCourse, etId, etAttendanceInput, etResultInput, etAnnouncementInput, etComplaintBody, etTotalFeeInput, etDueFeeInput;
-    private Button btnSave, btnView, btnUpdate, btnDelete, btnLogout, btnPostAnnouncement, btnSubmitComplaint, btnViewComplaints, btnGenerateReceipt, btnPayOnline, btnViewFeeApprovals;
+    private EditText etName, etRoll, etCourse, etId, etNewId, etAttendanceInput, etResultInput, etAnnouncementInput, etComplaintBody, etTotalFeeInput, etDueFeeInput, etTimeTableInput;
+    private Button btnSave, btnView, btnUpdate, btnDelete, btnLogout, btnPostAnnouncement, btnSubmitComplaint, btnViewComplaints, btnGenerateReceipt, btnPayOnline, btnViewFeeApprovals, btnPostTimeTable;
 
     private LinearLayout layoutAdminFaculty, layoutStudentCard;
-    private TextView tvProfileName, tvProfileRoll, tvProfileCourse, tvProfileId, tvDashboardTitle, tvProfileAttendance, tvProfileResult, tvLiveAnnouncement, tvProfileTotalFee, tvProfileDueFee;
+    private TextView tvProfileName, tvProfileRoll, tvProfileCourse, tvProfileId, tvDashboardTitle, tvProfileAttendance, tvProfileResult, tvLiveAnnouncement, tvProfileTotalFee, tvProfileDueFee, tvStudentTimeTable;
 
     private RecyclerView recyclerView;
     private StudentAdapter studentAdapter;
 
-    private DatabaseReference dbStudents, dbAnnouncements, dbComplaints, dbApprovals;
+    private DatabaseReference dbStudents, dbAnnouncements, dbComplaints, dbApprovals, dbTimeTable;
 
     private String userRole = "Admin";
     private String loggedInUser = "";
@@ -56,8 +56,10 @@ public class MainActivity extends ComponentActivity {
         dbAnnouncements = FirebaseDatabase.getInstance().getReference("Announcements");
         dbComplaints = FirebaseDatabase.getInstance().getReference("Complaints");
         dbApprovals = FirebaseDatabase.getInstance().getReference("PaymentApprovals");
+        dbTimeTable = FirebaseDatabase.getInstance().getReference("TimeTable");
 
         etId = findViewById(R.id.etId);
+        etNewId = findViewById(R.id.etNewId);
         etName = findViewById(R.id.etName);
         etRoll = findViewById(R.id.etRoll);
         etCourse = findViewById(R.id.etCourse);
@@ -67,6 +69,7 @@ public class MainActivity extends ComponentActivity {
         etComplaintBody = findViewById(R.id.etComplaintBody);
         etTotalFeeInput = findViewById(R.id.etTotalFeeInput);
         etDueFeeInput = findViewById(R.id.etDueFeeInput);
+        etTimeTableInput = findViewById(R.id.etTimeTableInput);
 
         btnSave = findViewById(R.id.btnSave);
         btnView = findViewById(R.id.btnView);
@@ -79,9 +82,11 @@ public class MainActivity extends ComponentActivity {
         btnGenerateReceipt = findViewById(R.id.btnGenerateReceipt);
         btnPayOnline = findViewById(R.id.btnPayOnline);
         btnViewFeeApprovals = findViewById(R.id.btnViewFeeApprovals);
+        btnPostTimeTable = findViewById(R.id.btnPostTimeTable);
 
         tvDashboardTitle = findViewById(R.id.tvDashboardTitle);
         tvLiveAnnouncement = findViewById(R.id.tvLiveAnnouncement);
+        tvStudentTimeTable = findViewById(R.id.tvStudentTimeTable);
 
         layoutAdminFaculty = findViewById(R.id.layoutAdminFaculty);
         layoutStudentCard = findViewById(R.id.layoutStudentCard);
@@ -99,9 +104,22 @@ public class MainActivity extends ComponentActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         listenToAnnouncements();
+        listenToTimeTable();
         applyRoleRestrictions();
 
-        // 📢 POST ANNOUNCEMENT
+        // FACULTY TIMETABLE SUBMISSION CONTROLLER
+        btnPostTimeTable.setOnClickListener(v -> {
+            String schedule = etTimeTableInput.getText().toString().trim();
+            if(!schedule.isEmpty()) {
+                dbTimeTable.setValue(schedule)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(MainActivity.this, "Academic Schedule Published!", Toast.LENGTH_SHORT).show();
+                            etTimeTableInput.setText("");
+                        });
+            }
+        });
+
+        // POST ANNOUNCEMENT
         btnPostAnnouncement.setOnClickListener(v -> {
             String notice = etAnnouncementInput.getText().toString().trim();
             if(!notice.isEmpty()) {
@@ -113,7 +131,7 @@ public class MainActivity extends ComponentActivity {
             }
         });
 
-        // 🚨 SUBMIT COMPLAINT
+        // SUBMIT COMPLAINT
         btnSubmitComplaint.setOnClickListener(v -> {
             String complaintText = etComplaintBody.getText().toString().trim();
             if(!complaintText.isEmpty()) {
@@ -168,26 +186,81 @@ public class MainActivity extends ComponentActivity {
         btnView.setOnClickListener(v -> viewStudentsFromFirebase());
         btnViewComplaints.setOnClickListener(v -> viewComplaintsOnSystem());
 
-        // 3. UPDATE
+        // 3. UPDATE WITH etNewId SUPPORT
         btnUpdate.setOnClickListener(v -> {
-            String id = etId.getText().toString().trim();
-            if (!id.isEmpty()) {
-                HashMap<String, Object> updateMap = new HashMap<>();
-                if(!etName.getText().toString().isEmpty()) updateMap.put("NAME", etName.getText().toString().trim());
-                if(!etRoll.getText().toString().isEmpty()) updateMap.put("roll", etRoll.getText().toString().trim());
-                if(!etCourse.getText().toString().isEmpty()) updateMap.put("course", etCourse.getText().toString().trim());
-                if(!etAttendanceInput.getText().toString().isEmpty()) updateMap.put("attendance", etAttendanceInput.getText().toString().trim());
-                if(!etResultInput.getText().toString().isEmpty()) updateMap.put("result", etResultInput.getText().toString().trim());
-                if(!etTotalFeeInput.getText().toString().isEmpty()) updateMap.put("total_fee", etTotalFeeInput.getText().toString().trim());
-                if(!etDueFeeInput.getText().toString().isEmpty()) updateMap.put("due_fee", etDueFeeInput.getText().toString().trim());
+            String currentId = etId.getText().toString().trim();
+            String newId = etNewId.getText().toString().trim();
 
-                dbStudents.child(id).updateChildren(updateMap)
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(MainActivity.this, "ID " + id + " Updated successfully!", Toast.LENGTH_SHORT).show();
-                            dbApprovals.child(id).removeValue();
-                            clearInputFields();
-                        });
+            if (currentId.isEmpty()) {
+                Toast.makeText(MainActivity.this, "Please enter Current Student ID first!", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            dbStudents.child(currentId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (!snapshot.exists()) {
+                        Toast.makeText(MainActivity.this, "No record found matching this Current ID!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String finalName = !etName.getText().toString().isEmpty() ? etName.getText().toString().trim() :
+                            (snapshot.child("NAME").getValue() != null ? snapshot.child("NAME").getValue().toString() : "");
+
+                    String finalRoll = !etRoll.getText().toString().isEmpty() ? etRoll.getText().toString().trim() :
+                            (snapshot.child("roll").getValue() != null ? snapshot.child("roll").getValue().toString() : currentId);
+
+                    String finalCourse = !etCourse.getText().toString().isEmpty() ? etCourse.getText().toString().trim() :
+                            (snapshot.child("course").getValue() != null ? snapshot.child("course").getValue().toString() : "");
+
+                    String finalAtt = !etAttendanceInput.getText().toString().isEmpty() ? etAttendanceInput.getText().toString().trim() :
+                            (snapshot.child("attendance").getValue() != null ? snapshot.child("attendance").getValue().toString() : "Not Marked");
+
+                    String finalRes = !etResultInput.getText().toString().isEmpty() ? etResultInput.getText().toString().trim() :
+                            (snapshot.child("result").getValue() != null ? snapshot.child("result").getValue().toString() : "Awaiting");
+
+                    String finalTotal = !etTotalFeeInput.getText().toString().isEmpty() ? etTotalFeeInput.getText().toString().trim() :
+                            (snapshot.child("total_fee").getValue() != null ? snapshot.child("total_fee").getValue().toString() : "0");
+
+                    String finalDue = !etDueFeeInput.getText().toString().isEmpty() ? etDueFeeInput.getText().toString().trim() :
+                            (snapshot.child("due_fee").getValue() != null ? snapshot.child("due_fee").getValue().toString() : "0");
+
+                    HashMap<String, Object> studentMap = new HashMap<>();
+                    studentMap.put("NAME", finalName);
+                    studentMap.put("course", finalCourse);
+                    studentMap.put("attendance", finalAtt);
+                    studentMap.put("result", finalRes);
+                    studentMap.put("total_fee", finalTotal);
+                    studentMap.put("due_fee", finalDue);
+
+                    if (!newId.isEmpty() && !newId.equals(currentId)) {
+                        studentMap.put("id", newId);
+                        studentMap.put("roll", finalRoll.equals(currentId) ? newId : finalRoll);
+
+                        dbStudents.child(newId).setValue(studentMap)
+                                .addOnSuccessListener(aVoid -> {
+                                    dbStudents.child(currentId).removeValue();
+                                    dbApprovals.child(currentId).removeValue();
+                                    Toast.makeText(MainActivity.this, "ID updated to: " + newId, Toast.LENGTH_LONG).show();
+                                    clearInputFields();
+                                });
+                    } else {
+                        studentMap.put("id", currentId);
+                        studentMap.put("roll", finalRoll);
+
+                        dbStudents.child(currentId).updateChildren(studentMap)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(MainActivity.this, "Data updated under ID: " + currentId, Toast.LENGTH_SHORT).show();
+                                    clearInputFields();
+                                });
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(MainActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         // 4. DELETE
@@ -218,6 +291,22 @@ public class MainActivity extends ComponentActivity {
         });
     }
 
+    private void listenToTimeTable() {
+        dbTimeTable.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    tvStudentTimeTable.setText(snapshot.getValue(String.class));
+                } else {
+                    tvStudentTimeTable.setText("No classes scheduled yet for today.");
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    // 🔥 FIXED: RESTRICTION LOGIC MODIFIED TO EXCLUDE FACULTY FROM FEE APPROVALS
     private void applyRoleRestrictions() {
         if (userRole.equals("Faculty")) {
             layoutAdminFaculty.setVisibility(View.VISIBLE);
@@ -225,7 +314,10 @@ public class MainActivity extends ComponentActivity {
             btnSave.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
             btnViewComplaints.setVisibility(View.VISIBLE);
-            btnViewFeeApprovals.setVisibility(View.VISIBLE);
+
+            // 🔥 REMOVED RIGHT FROM FACULTY: Button is now strictly hidden for Faculty role
+            btnViewFeeApprovals.setVisibility(View.GONE);
+
             tvDashboardTitle.setText("Faculty Portal Management");
         } else if (userRole.equals("Student")) {
             layoutAdminFaculty.setVisibility(View.GONE);
@@ -233,10 +325,11 @@ public class MainActivity extends ComponentActivity {
             tvDashboardTitle.setText("Student ERP Terminal");
             fetchSingleStudentData(loggedInUser);
         } else {
+            // Admin role retains full access
             layoutAdminFaculty.setVisibility(View.VISIBLE);
             layoutStudentCard.setVisibility(View.GONE);
             btnViewComplaints.setVisibility(View.VISIBLE);
-            btnViewFeeApprovals.setVisibility(View.VISIBLE);
+            btnViewFeeApprovals.setVisibility(View.VISIBLE); // Admin keeps the button visible
             tvDashboardTitle.setText("Admin Command Center");
         }
     }
@@ -261,7 +354,7 @@ public class MainActivity extends ComponentActivity {
                     tvProfileName.setText("Full Name: " + rName);
                     tvProfileRoll.setText("University Roll No: " + rRoll);
                     tvProfileCourse.setText("Enrolled Course: " + rCourse.toUpperCase());
-                    tvProfileAttendance.setText("📊 Attendance Status: " + attValue);
+                    tvProfileAttendance.setText("📊 Attendance Status: " + attValue + "%");
                     tvProfileResult.setText("🎓 Current Semester Result: " + resValue);
 
                     tvProfileTotalFee.setText("Total Course Fee: ₹" + rTotal);
@@ -299,7 +392,6 @@ public class MainActivity extends ComponentActivity {
         builder.create().show();
     }
 
-    // 📱 SECURE FIXED ROUTING POPUP FOR TRANSACTION SYNC
     private void showPaytmQrPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("📱 Paytm UPI Payment Gateway");
@@ -328,8 +420,6 @@ public class MainActivity extends ComponentActivity {
 
         builder.setPositiveButton("I HAVE PAID 👍", (dialog, which) -> {
             HashMap<String, String> approvalMap = new HashMap<>();
-
-            // Fixed direct key matching mapping packet
             String secureApprovalKey = (rId != null && !rId.trim().isEmpty()) ? rId.trim() : rRoll.trim();
 
             approvalMap.put("id", secureApprovalKey);
@@ -413,7 +503,6 @@ public class MainActivity extends ComponentActivity {
         });
     }
 
-    // 📊 VIEW ALL RECORDS WITH CRITICAL BLANK FILTERS
     private void viewStudentsFromFirebase() {
         dbStudents.addValueEventListener(new ValueEventListener() {
             @Override
@@ -422,14 +511,13 @@ public class MainActivity extends ComponentActivity {
                 if (!snapshot.exists()) { return; }
 
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    String id = dataSnapshot.child("id").getValue() != null ? dataSnapshot.child("id").getValue().toString() : "";
+                    String id = dataSnapshot.getKey() != null ? dataSnapshot.getKey() : "";
                     String name = dataSnapshot.child("NAME").getValue() != null ? dataSnapshot.child("NAME").getValue().toString() : "";
                     String roll = dataSnapshot.child("roll").getValue() != null ? dataSnapshot.child("roll").getValue().toString() : "";
                     String course = dataSnapshot.child("course").getValue() != null ? dataSnapshot.child("course").getValue().toString() : "";
                     String attendance = dataSnapshot.child("attendance").getValue() != null ? dataSnapshot.child("attendance").getValue().toString() : "Not Marked";
                     String result = dataSnapshot.child("result").getValue() != null ? dataSnapshot.child("result").getValue().toString() : "Awaiting";
 
-                    // 🔥 VALIDATION FIX: Agar name aur roll khali dummy nodes hain toh unhe ignore karo
                     if (name.trim().isEmpty() && roll.trim().isEmpty()) {
                         continue;
                     }
@@ -437,7 +525,7 @@ public class MainActivity extends ComponentActivity {
                     JSONObject jsonObject = new JSONObject();
                     try {
                         jsonObject.put("id", id);
-                        jsonObject.put("NAME", name);
+                        jsonObject.put("NAME", "ID: " + id + " | Name: " + name);
                         jsonObject.put("roll", roll);
                         jsonObject.put("course", course);
                         jsonObject.put("attendance", attendance);
@@ -454,7 +542,7 @@ public class MainActivity extends ComponentActivity {
     }
 
     private void clearInputFields() {
-        etId.setText(""); etName.setText(""); etRoll.setText(""); etCourse.setText("");
+        etId.setText(""); etNewId.setText(""); etName.setText(""); etRoll.setText(""); etCourse.setText("");
         etAttendanceInput.setText(""); etResultInput.setText("");
         etTotalFeeInput.setText(""); etDueFeeInput.setText("");
     }

@@ -21,7 +21,6 @@
             android:layout_gravity="center"
             android:layout_marginBottom="8dp"/>
 
-        <!-- ANNOUNCEMENT TICKER SECTION -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,9 +42,6 @@
                 android:textColor="#92400E"/>
         </LinearLayout>
 
-        <!-- ==================================================== -->
-        <!-- CONTAINER 1: ADMIN & FACULTY PANEL                   -->
-        <!-- ==================================================== -->
         <LinearLayout
             android:id="@+id/layoutAdminFaculty"
             android:layout_width="match_parent"
@@ -67,6 +63,25 @@
                 android:layout_height="40dp"
                 android:text="POST ANNOUNCEMENT"
                 android:backgroundTint="#6366F1"
+                android:layout_marginBottom="12dp"/>
+
+            <EditText
+                android:id="@+id/etTimeTableInput"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:hint="Update Time Table Slots (e.g., 9AM: Node.js, 11AM: Automata Theory)..."
+                android:gravity="top|left"
+                android:padding="8dp"
+                android:background="@android:drawable/editbox_background_normal"
+                android:layout_marginBottom="8dp"/>
+            <Button
+                android:id="@+id/btnPostTimeTable"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="PUBLISH NEW TIMETABLE 📅"
+                android:backgroundTint="#F59E0B"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
                 android:layout_marginBottom="16dp"/>
 
             <EditText
@@ -87,6 +102,15 @@
                 android:paddingLeft="12dp"
                 android:background="@android:drawable/editbox_background_normal"
                 android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/etNewId"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Enter NEW Student ID (To Change ID)"
+                android:inputType="text"
+                android:paddingLeft="16dp"
+                android:layout_marginBottom="16dp"/>
 
             <EditText
                 android:id="@+id/etRoll"
@@ -219,7 +243,6 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
 
-            <!-- 🔥 NEW FEE APPROVAL VIEW LOG LISTENER -->
             <Button
                 android:id="@+id/btnViewFeeApprovals"
                 android:layout_width="match_parent"
@@ -245,9 +268,6 @@
                 android:layout_marginBottom="16dp"/>
         </LinearLayout>
 
-        <!-- ==================================================== -->
-        <!-- CONTAINER 2: STUDENT PROFILE VIEW BLOCK              -->
-        <!-- ==================================================== -->
         <LinearLayout
             android:id="@+id/layoutStudentCard"
             android:layout_width="match_parent"
@@ -306,7 +326,31 @@
                 android:textColor="#2563EB"
                 android:layout_marginBottom="16dp"/>
 
-            <!-- STUDENT FEE STRUCTURE DISP CARD -->
+            <LinearLayout
+                android:id="@+id/layoutTimeTableCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFF7ED"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📅 TODAY'S ACADEMIC TIMETABLE"
+                    android:textStyle="bold"
+                    android:textColor="#C2410C"
+                    android:layout_marginBottom="6dp"/>
+                <TextView
+                    android:id="@+id/tvStudentTimeTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No schedule announced yet for today."
+                    android:textSize="14sp"
+                    android:textColor="#475569"
+                    android:lineSpacingMultiplier="1.2"/>
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -398,6 +442,5 @@
             android:backgroundTint="#475569"
             android:textColor="#FFFFFF"
             android:textStyle="bold"/>
-
     </LinearLayout>
 </ScrollView>
